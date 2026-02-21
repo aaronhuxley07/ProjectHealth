@@ -13,14 +13,16 @@ final class ExerciseInfo {
 
     @Attribute(.unique)
     var id: UUID
-    
     var name: String
+    var isDeprecated: Bool
 
     init(
         id: UUID,
         name: String,
+        isDeprecated: Bool = false
     ) {
         self.id = id
         self.name = name
+        self.isDeprecated = isDeprecated
     }
 }
