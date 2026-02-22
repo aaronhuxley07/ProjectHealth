@@ -27,7 +27,7 @@ struct ProjectHealthApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ExerciseInfoListView()
                 .modelContainer(container)
         }
     }
