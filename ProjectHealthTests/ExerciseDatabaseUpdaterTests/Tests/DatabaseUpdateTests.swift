@@ -24,7 +24,6 @@ struct DatabaseUpdateTests {
     /// 4. Verify that the database contains exactly one exercise,
     ///    the name has been updated, and it is not deprecated.
     @Test
-    @MainActor
     func testUpdatesExistingExercise() throws {
         resetSeedVersion()
 
@@ -64,7 +63,6 @@ struct DatabaseUpdateTests {
     /// 4. Verify that the missing exercise is marked as deprecated,
     ///    and the remaining exercise stays active.
     @Test
-    @MainActor
     func testDeprecatesRemovedExercise() throws {
         resetSeedVersion()
 
@@ -101,4 +99,6 @@ struct DatabaseUpdateTests {
         #expect(!bench.isDeprecated) // Bench Press remains active
         #expect(squat.isDeprecated)  // Squat is deprecated
     }
+    
+    
 }
