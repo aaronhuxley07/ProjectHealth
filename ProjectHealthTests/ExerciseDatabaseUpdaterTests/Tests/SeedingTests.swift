@@ -13,8 +13,8 @@ import SwiftUI
 
 
 @MainActor
-@Suite("Exercise Database Updater – Seeding")
-struct ExerciseDatabaseUpdaterSeedingTests {
+@Suite("Exercise Database Updater – Seeding Tests")
+struct SeedingTests {
 
     /// Verifies that a fresh database is correctly seeded from JSON data.
     ///
