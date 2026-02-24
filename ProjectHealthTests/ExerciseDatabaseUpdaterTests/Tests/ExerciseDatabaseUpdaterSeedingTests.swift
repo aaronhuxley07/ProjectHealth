@@ -51,4 +51,48 @@ struct ExerciseDatabaseUpdaterSeedingTests {
         )
         #expect(storedVersion == 1)
     }
+    
+    /// Verifies that running the updater multiple times with the same
+    /// JSON and version does not create duplicate records.
+    ///
+    /// Given a fresh in-memory store,
+    /// when updateIfNeeded is executed twice,
+    /// then the database remains unchanged after the first run.
+    @Test
+    func testSeedingIsIdempotent() throws {
+        resetSeedVersion()
+
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+
+        let json1 = exerciseJSON(name: "Bench Press")
+        let json2 = exerciseJSON(name: "Squat")
+        let combined = try combineJSON([json1, json2])
+
+        // First run
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: combined
+        )
+
+        // Second run
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: combined
+        )
+
+        let exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+
+        #expect(exercises.count == 2)
+
+        let names = exercises.map { $0.name }
+        #expect(names.contains("Bench Press"))
+        #expect(names.contains("Squat"))
+
+        let storedVersion = UserDefaults.standard.integer(
+            forKey: "exerciseInfoDatabaseVersionKey"
+        )
+
+        #expect(storedVersion == 1)
+    }
 }

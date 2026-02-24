@@ -6,6 +6,7 @@
 //
 
 import SwiftData
+import SwiftUI
 @testable import ProjectHealth
 
 /// Creates an in-memory container for testing ExerciseInfo database updates
