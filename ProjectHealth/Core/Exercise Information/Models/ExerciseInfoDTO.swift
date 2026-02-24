@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ExerciseInfoDTO: Decodable {
+struct ExerciseInfoDTO: Encodable, Decodable {
     let id: String
     let name: String
 }
