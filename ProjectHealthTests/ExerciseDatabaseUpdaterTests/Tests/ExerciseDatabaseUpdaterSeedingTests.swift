@@ -97,4 +97,45 @@ struct ExerciseDatabaseUpdaterSeedingTests {
         #expect(names.contains("Bench Press"))
         #expect(names.contains("Squat"))
     }
+    
+    /// Verifies that updateIfNeeded does not execute migration logic
+    /// when the stored version matches the current version.
+    ///
+    /// Given a seeded database,
+    /// when a record is manually modified and updateIfNeeded is called again
+    /// without a version change,
+    /// then the manual modification remains untouched.
+    @Test
+    func testDoesNotRunWhenVersionUnchanged() throws {
+        resetSeedVersion()
+
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+
+        let json = exerciseJSON(name: "Bench Press")
+
+        // Initial seed
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: json
+        )
+
+        var exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+        #expect(exercises.count == 1)
+
+        // Manually mutate the stored entity
+        exercises[0].name = "Modified Name"
+        try context.save()
+
+        // Call updater again WITHOUT version bump
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: json
+        )
+
+        exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+
+        // If updater reran migration logic, this would be overwritten.
+        #expect(exercises[0].name == "Modified Name")
+    }
 }
