@@ -52,14 +52,14 @@ struct ExerciseDatabaseUpdaterSeedingTests {
         #expect(storedVersion == 1)
     }
     
-    /// Verifies that running the updater multiple times with the same
-    /// JSON and version does not create duplicate records.
+    /// Verifies that a version bump with identical JSON
+    /// does not create duplicate ExerciseInfo records.
     ///
-    /// Given a fresh in-memory store,
-    /// when updateIfNeeded is executed twice,
-    /// then the database remains unchanged after the first run.
+    /// Given a seeded database at version 1,
+    /// when the stored version is lowered and the updater is re-run,
+    /// then no additional records are inserted.
     @Test
-    func testSeedingIsIdempotent() throws {
+    func testIdempotentAfterVersionBump() throws {
         resetSeedVersion()
 
         let container = try makeInMemoryContainer()
@@ -69,30 +69,32 @@ struct ExerciseDatabaseUpdaterSeedingTests {
         let json2 = exerciseJSON(name: "Squat")
         let combined = try combineJSON([json1, json2])
 
-        // First run
+        // Initial seed (version becomes 1)
         ExerciseInfoDatabaseUpdater.updateIfNeeded(
             context: context,
             jsonData: combined
         )
 
-        // Second run
+        var exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+        #expect(exercises.count == 2)
+
+        // Simulate version bump by lowering stored version
+        UserDefaults.standard.set(
+            0,
+            forKey: "exerciseInfoDatabaseVersionKey"
+        )
+
+        // Run updater again with identical JSON
         ExerciseInfoDatabaseUpdater.updateIfNeeded(
             context: context,
             jsonData: combined
         )
 
-        let exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
-
+        exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
         #expect(exercises.count == 2)
 
         let names = exercises.map { $0.name }
         #expect(names.contains("Bench Press"))
         #expect(names.contains("Squat"))
-
-        let storedVersion = UserDefaults.standard.integer(
-            forKey: "exerciseInfoDatabaseVersionKey"
-        )
-
-        #expect(storedVersion == 1)
     }
 }
