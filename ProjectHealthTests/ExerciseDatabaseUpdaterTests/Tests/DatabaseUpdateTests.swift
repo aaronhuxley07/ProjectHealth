@@ -100,5 +100,53 @@ struct DatabaseUpdateTests {
         #expect(squat.isDeprecated)  // Squat is deprecated
     }
     
-    
+    /// Tests that ExerciseInfoDatabaseUpdater correctly inserts a new exercise
+    /// when the updated JSON contains an exercise not previously in the database.
+    ///
+    /// Steps:
+    /// 1. Seed the database with one initial exercise.
+    /// 2. Provide an updated JSON containing the original exercise plus a new one.
+    /// 3. Force the updater to run by resetting the stored version.
+    /// 4. Verify that the database contains both exercises and none are deprecated.
+    @Test
+    func testInsertsNewExerciseDuringUpdate() throws {
+        resetSeedVersion()
+
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+
+        // Initial seed: one exercise
+        let initialJSON = exerciseJSON(id: "11111111-1111-1111-1111-111111111111", name: "Bench Press")
+        
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(context: context, jsonData: initialJSON)
+        var exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+        
+        #expect(exercises.count == 1)
+        #expect(exercises.first!.name == "Bench Press")
+        #expect(!exercises.first!.isDeprecated)
+
+        // Updated JSON: add a new exercise
+        let newExerciseJSON = exerciseJSON(id: "22222222-2222-2222-2222-222222222222", name: "Squat")
+        let combinedJSON = try combineJSON([initialJSON, newExerciseJSON])
+
+        // Force updater to run
+        UserDefaults.standard.set(0, forKey: "exerciseInfoDatabaseVersionKey")
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(context: context, jsonData: combinedJSON)
+
+        exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+
+        #expect(exercises.contains { $0.id.uuidString == "11111111-1111-1111-1111-111111111111" })
+        #expect(exercises.contains { $0.id.uuidString == "22222222-2222-2222-2222-222222222222" })
+        
+        guard let bench = exercises.first(where: { $0.id.uuidString == "11111111-1111-1111-1111-111111111111" }),
+              let squat = exercises.first(where: { $0.id.uuidString == "22222222-2222-2222-2222-222222222222" }) else {
+            return
+        }
+
+        #expect(exercises.count == 2)       // Both exercises exist
+        #expect(!bench.isDeprecated)        // Original remains active
+        #expect(!squat.isDeprecated)        // New exercise added active
+        #expect(bench.name == "Bench Press")
+        #expect(squat.name == "Squat")
+    }
 }
