@@ -14,14 +14,14 @@ final class WorkoutSet {
     var id: UUID
 
     var reps: Int
-    var weight: Double
+    var weight: Double?
 
     var order: Int
 
     init(
         id: UUID = UUID(),
         reps: Int,
-        weight: Double,
+        weight: Double? = nil,
         order: Int
     ) {
         self.id = id
