@@ -16,6 +16,12 @@ struct WorkoutSessionView: View {
     var body: some View {
         NavigationStack {
             VStack {
+                Text(viewModel.elapsedTimeString)
+                    .font(.system(size: 48, weight: .bold, design: .monospaced))
+                    .padding(.top)
+                
+                Divider()
+                
                 if let session = viewModel.session {
                     List {
                         ForEach(session.exercises, id: \.id) { exercise in
@@ -31,7 +37,7 @@ struct WorkoutSessionView: View {
                         }
                         .onDelete { indices in
                             for index in indices {
-                                viewModel.removeExercise(session.exercises[index])
+                                viewModel.deleteExercise(session.exercises[index])
                             }
                         }
                     }

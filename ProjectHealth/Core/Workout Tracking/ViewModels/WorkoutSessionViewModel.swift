@@ -17,6 +17,9 @@ final class WorkoutSessionViewModel: ObservableObject {
     let manager: WorkoutSessionManager
     private var cancellables = Set<AnyCancellable>()
     
+    @Published var elapsedTime: TimeInterval = 0
+    private var timer: AnyCancellable?
+    
     init(manager: WorkoutSessionManager) {
         self.manager = manager
         self.session = manager.activeSession
@@ -27,6 +30,41 @@ final class WorkoutSessionViewModel: ObservableObject {
                 self?.session = session
             }
             .store(in: &cancellables)
+        
+        updateElapsedTime()
+        startTimer()
+    }
+    
+    deinit {
+        timer?.cancel()
+    }
+    
+    // MARK: - Timer
+       
+   private func startTimer() {
+       // Fires every second
+       timer = Timer.publish(every: 1, on: .main, in: .common)
+           .autoconnect()
+           .sink { [weak self] _ in
+               self?.updateElapsedTime()
+           }
+   }
+
+    private func updateElapsedTime() {
+        guard let start = session?.startDate else {
+            elapsedTime = 0
+            return
+        }
+        let end = session?.endDate ?? Date()
+        elapsedTime = end.timeIntervalSince(start)
+    }
+    
+    // Formatted time
+    var elapsedTimeString: String {
+        let hours = Int(elapsedTime) / 3600
+        let minutes = (Int(elapsedTime) % 3600) / 60
+        let seconds = Int(elapsedTime) % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
     
     // MARK: - Actions
@@ -43,7 +81,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         manager.addExercise(exercise)
     }
     
-    func removeExercise(_ exercise: WorkoutExercise) {
+    func deleteExercise(_ exercise: WorkoutExercise) {
         manager.deleteExercise(exercise)
     }
     
@@ -51,7 +89,7 @@ final class WorkoutSessionViewModel: ObservableObject {
         manager.addSet(to: exercise, reps: reps, weight: weight)
     }
     
-    func removeSet(_ set: WorkoutSet, from exercise: WorkoutExercise) {
+    func deleteSet(_ set: WorkoutSet, from exercise: WorkoutExercise) {
         manager.deleteSet(set, from: exercise)
     }
 }
