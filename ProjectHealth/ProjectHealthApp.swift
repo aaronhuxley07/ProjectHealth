@@ -17,7 +17,7 @@ struct ProjectHealthApp: App {
     init() {
         do {
             // Initialise the container with ExerciseInfo model
-            container = try ModelContainer(for: ExerciseInfo.self)
+            container = try ModelContainer(for: WorkoutSession.self, WorkoutExercise.self, WorkoutSet.self, ExerciseInfo.self)
             
             // Seed or update the exercise database from JSON if needed
             ExerciseInfoDatabaseUpdater.updateIfNeeded(context: container.mainContext)

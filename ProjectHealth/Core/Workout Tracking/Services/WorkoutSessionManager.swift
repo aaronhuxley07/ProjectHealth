@@ -11,71 +11,84 @@ import Combine
 
 @MainActor
 final class WorkoutSessionManager: ObservableObject {
-
+    
     @Published private(set) var activeSession: WorkoutSession?
-
+    
     private let context: ModelContext
-
+    private let userDefaultsKey = "activeWorkoutSessionID"
+    
     init(context: ModelContext) {
         self.context = context
+        loadActiveSession()
     }
-
+    
     // MARK: - Start Workout
     
     func startWorkout() {
         guard activeSession == nil else { return }
-        activeSession = WorkoutSession()
+        
+        let session = WorkoutSession()
+        context.insert(session)
+        try? context.save() // Persist immediately
+        activeSession = session
+        
+        // Store ID for resume
+        UserDefaults.standard.set(session.id.uuidString, forKey: userDefaultsKey)
     }
     
     // MARK: - Finish Workout
-
+    
     func finishWorkout() {
         guard let session = activeSession else { return }
         session.endDate = .now
-        context.insert(session)
+        try? context.save()
+        
         activeSession = nil
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
     
-    // MARK: - Add Exercise
+    // MARK: - Add / Remove Exercises
     
     func addExercise(_ exerciseInfo: ExerciseInfo) {
         guard let session = activeSession else { return }
         let order = session.exercises.count
         let workoutExercise = WorkoutExercise(exerciseInfo: exerciseInfo, order: order)
         session.exercises.append(workoutExercise)
-    }
-
-    // MARK: - Delete Exercise
-
-    func deleteExercise(_ exercise: WorkoutExercise) {
-        guard let session = activeSession else { return }
-        if let index = session.exercises.firstIndex(where: { $0.id == exercise.id }) {
-            session.exercises.remove(at: index)
-            // Reorder remaining exercises
-            for (i, ex) in session.exercises.enumerated() {
-                ex.order = i
-            }
-        }
-    }
-
-    // MARK: - Add Set
-
-    func addSet(to exercise: WorkoutExercise, reps: Int, weight: Double? = nil) {
-        guard let session = activeSession else { return }
-        let order = session.exercises.count
-        let workoutSet = WorkoutSet(reps: reps, weight: weight, order: order)
-        exercise.sets.append(workoutSet)
+        try? context.save()
     }
     
-    // MARK: - Delete Set
-
+    func deleteExercise(_ exercise: WorkoutExercise) {
+        guard let session = activeSession else { return }
+        session.exercises.removeAll { $0.id == exercise.id }
+        try? context.save()
+    }
+    
+    // MARK: - Add / Remove Sets
+    
+    func addSet(to exercise: WorkoutExercise, reps: Int, weight: Double? = nil) {
+        let workoutSet = WorkoutSet(reps: reps, weight: weight, order: exercise.sets.count)
+        exercise.sets.append(workoutSet)
+        try? context.save()
+    }
+    
     func deleteSet(_ set: WorkoutSet, from exercise: WorkoutExercise) {
-        if let index = exercise.sets.firstIndex(where: { $0.id == set.id }) {
-            exercise.sets.remove(at: index)
-            // Reorder remaining sets
-            for (i, s) in exercise.sets.enumerated() {
-                s.order = i
-            }
+        exercise.sets.removeAll { $0.id == set.id }
+        try? context.save()
+    }
+    
+    // MARK: - Load Active Session
+    
+    private func loadActiveSession() {
+        guard
+            let idString = UserDefaults.standard.string(forKey: userDefaultsKey),
+            let uuid = UUID(uuidString: idString)
+        else { return }
+        
+        let fetchDescriptor = FetchDescriptor<WorkoutSession>()
+        if let session = (try? context.fetch(fetchDescriptor))?.first(where: { $0.id == uuid }),
+           session.endDate == nil // Only resume unfinished sessions
+        {
+            activeSession = session
         }
     }
 }
