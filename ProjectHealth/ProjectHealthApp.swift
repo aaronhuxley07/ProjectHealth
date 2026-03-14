@@ -12,7 +12,8 @@ import SwiftData
 struct ProjectHealthApp: App {
     
     let container: ModelContainer
-
+    let sessionManager: WorkoutSessionManager
+    
     init() {
         do {
             // Initialise the container with ExerciseInfo model
@@ -20,6 +21,10 @@ struct ProjectHealthApp: App {
             
             // Seed or update the exercise database from JSON if needed
             ExerciseInfoDatabaseUpdater.updateIfNeeded(context: container.mainContext)
+            
+            sessionManager = WorkoutSessionManager(
+                context: container.mainContext
+            )
         } catch {
             fatalError("Failed to initialise app: \(error)")
         }
@@ -27,8 +32,9 @@ struct ProjectHealthApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ExerciseInfoListView()
+            WorkoutHubView()
                 .modelContainer(container)
+                .environmentObject(sessionManager)
         }
     }
 }
