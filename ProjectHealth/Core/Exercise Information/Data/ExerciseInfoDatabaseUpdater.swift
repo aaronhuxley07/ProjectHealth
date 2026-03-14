@@ -77,12 +77,20 @@ extension ExerciseInfoDatabaseUpdater {
     ///   - dtos: Array of decoded `ExerciseInfoDTO` objects from JSON.
     ///   - context: The SwiftData `ModelContext` used for database operations.
     private static func updateDatabase(dtos: [ExerciseInfoDTO], context: ModelContext) {
+
+        // Deduplicate JSON entries by UUID so the last entry wins
+        var uniqueDTOs: [UUID: ExerciseInfoDTO] = [:]
+
+        for dto in dtos {
+            guard let uuid = UUID(uuidString: dto.id) else { continue }
+            uniqueDTOs[uuid] = dto
+        }
+
         let existingExercises = (try? context.fetch(FetchDescriptor<ExerciseInfo>())) ?? []
         let existingByID = Dictionary(uniqueKeysWithValues: existingExercises.map { ($0.id, $0) })
         var jsonIDs = Set<UUID>()
 
-        for dto in dtos {
-            guard let uuid = UUID(uuidString: dto.id) else { continue }
+        for (uuid, dto) in uniqueDTOs {
             jsonIDs.insert(uuid)
 
             if let existing = existingByID[uuid] {
