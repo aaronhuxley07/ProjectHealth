@@ -1,0 +1,141 @@
+//
+//  Seeding Tests.swift
+//  ProjectHealth
+//
+//  Created by Aaron Huxley on 22/02/2026.
+//
+
+
+import Testing
+import SwiftData
+import SwiftUI
+@testable import ProjectHealth
+
+
+@MainActor
+@Suite("Exercise Database Updater – Seeding Tests")
+struct SeedingTests {
+
+    /// Verifies that a fresh database is correctly seeded from JSON data.
+    ///
+    /// Given an empty in-memory store and a reset version key,
+    /// when updateIfNeeded is executed,
+    /// then all exercises from the JSON are inserted,
+    /// marked as active (not deprecated),
+    /// and the version key is updated.
+    @Test
+    func testInitialSeedInsertsExercises() throws {
+        resetSeedVersion()
+
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        
+        let json1 = exerciseJSON(name: "Bench Press")
+        let json2 = exerciseJSON(name: "Squat")
+        let combined = try combineJSON([json1, json2])
+
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(context: context, jsonData: combined)
+
+        let exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+
+        #expect(exercises.count == 2)
+        
+        let names = exercises.map { $0.name }
+        #expect(names.contains("Bench Press"))
+        #expect(names.contains("Squat"))
+
+        #expect(exercises.allSatisfy { !$0.isDeprecated })
+
+        let storedVersion = UserDefaults.standard.integer(
+            forKey: "exerciseInfoDatabaseVersionKey"
+        )
+        #expect(storedVersion == 1)
+    }
+    
+    /// Verifies that a version bump with identical JSON
+    /// does not create duplicate ExerciseInfo records.
+    ///
+    /// Given a seeded database at version 1,
+    /// when the stored version is lowered and the updater is re-run,
+    /// then no additional records are inserted.
+    @Test
+    func testIdempotentAfterVersionBump() throws {
+        resetSeedVersion()
+
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+
+        let json1 = exerciseJSON(name: "Bench Press")
+        let json2 = exerciseJSON(name: "Squat")
+        let combined = try combineJSON([json1, json2])
+
+        // Initial seed (version becomes 1)
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: combined
+        )
+
+        var exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+        #expect(exercises.count == 2)
+
+        // Simulate version bump by lowering stored version
+        UserDefaults.standard.set(
+            0,
+            forKey: "exerciseInfoDatabaseVersionKey"
+        )
+
+        // Run updater again with identical JSON
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: combined
+        )
+
+        exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+        #expect(exercises.count == 2)
+
+        let names = exercises.map { $0.name }
+        #expect(names.contains("Bench Press"))
+        #expect(names.contains("Squat"))
+    }
+    
+    /// Verifies that updateIfNeeded does not execute migration logic
+    /// when the stored version matches the current version.
+    ///
+    /// Given a seeded database,
+    /// when a record is manually modified and updateIfNeeded is called again
+    /// without a version change,
+    /// then the manual modification remains untouched.
+    @Test
+    func testDoesNotRunWhenVersionUnchanged() throws {
+        resetSeedVersion()
+
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+
+        let json = exerciseJSON(name: "Bench Press")
+
+        // Initial seed
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: json
+        )
+
+        var exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+        #expect(exercises.count == 1)
+
+        // Manually mutate the stored entity
+        exercises[0].name = "Modified Name"
+        try context.save()
+
+        // Call updater again WITHOUT version bump
+        ExerciseInfoDatabaseUpdater.updateIfNeeded(
+            context: context,
+            jsonData: json
+        )
+
+        exercises = try context.fetch(FetchDescriptor<ExerciseInfo>())
+
+        // If updater reran migration logic, this would be overwritten.
+        #expect(exercises[0].name == "Modified Name")
+    }
+}

@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		934CF3A32F4B706F0024FE8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 934CF36F2F4A57FC0024FE8F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 934CF3762F4A57FC0024FE8F;
+			remoteInfo = ProjectHealth;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		934CF3772F4A57FC0024FE8F /* ProjectHealth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProjectHealth.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		934CF39F2F4B706F0024FE8F /* ProjectHealthTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProjectHealthTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = ProjectHealth;
 			sourceTree = "<group>";
 		};
+		934CF3A02F4B706F0024FE8F /* ProjectHealthTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ProjectHealthTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		934CF3742F4A57FC0024FE8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		934CF39C2F4B706F0024FE8F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				934CF3792F4A57FC0024FE8F /* ProjectHealth */,
+				934CF3A02F4B706F0024FE8F /* ProjectHealthTests */,
 				934CF3782F4A57FC0024FE8F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				934CF3772F4A57FC0024FE8F /* ProjectHealth.app */,
+				934CF39F2F4B706F0024FE8F /* ProjectHealthTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = 934CF3772F4A57FC0024FE8F /* ProjectHealth.app */;
 			productType = "com.apple.product-type.application";
 		};
+		934CF39E2F4B706F0024FE8F /* ProjectHealthTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 934CF3A52F4B706F0024FE8F /* Build configuration list for PBXNativeTarget "ProjectHealthTests" */;
+			buildPhases = (
+				934CF39B2F4B706F0024FE8F /* Sources */,
+				934CF39C2F4B706F0024FE8F /* Frameworks */,
+				934CF39D2F4B706F0024FE8F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				934CF3A42F4B706F0024FE8F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				934CF3A02F4B706F0024FE8F /* ProjectHealthTests */,
+			);
+			name = ProjectHealthTests;
+			packageProductDependencies = (
+			);
+			productName = ProjectHealthTests;
+			productReference = 934CF39F2F4B706F0024FE8F /* ProjectHealthTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 				TargetAttributes = {
 					934CF3762F4A57FC0024FE8F = {
 						CreatedOnToolsVersion = 26.0.1;
+					};
+					934CF39E2F4B706F0024FE8F = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = 934CF3762F4A57FC0024FE8F;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				934CF3762F4A57FC0024FE8F /* ProjectHealth */,
+				934CF39E2F4B706F0024FE8F /* ProjectHealthTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		934CF3752F4A57FC0024FE8F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		934CF39D2F4B706F0024FE8F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		934CF39B2F4B706F0024FE8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		934CF3A42F4B706F0024FE8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 934CF3762F4A57FC0024FE8F /* ProjectHealth */;
+			targetProxy = 934CF3A32F4B706F0024FE8F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		934CF3802F4A57FE0024FE8F /* Debug */ = {
@@ -310,6 +385,48 @@
 			};
 			name = Release;
 		};
+		934CF3A62F4B706F0024FE8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V842SHB26D;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AaronHuxley.ProjectHealthTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ProjectHealth.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ProjectHealth";
+			};
+			name = Debug;
+		};
+		934CF3A72F4B706F0024FE8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V842SHB26D;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AaronHuxley.ProjectHealthTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ProjectHealth.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ProjectHealth";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -327,6 +444,15 @@
 			buildConfigurations = (
 				934CF3832F4A57FE0024FE8F /* Debug */,
 				934CF3842F4A57FE0024FE8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		934CF3A52F4B706F0024FE8F /* Build configuration list for PBXNativeTarget "ProjectHealthTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				934CF3A62F4B706F0024FE8F /* Debug */,
+				934CF3A72F4B706F0024FE8F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
